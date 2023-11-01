@@ -30,23 +30,17 @@ namespace Projected_Damage
 
 		// Code base from ADDB 
 		[HarmonyPatch(typeof(WorldUnitController))]
-		public static class WorldUnit_Patch
+		public static class WorldUnitPatch
 		{
+
 			[HarmonyPatch(nameof(WorldUnitController.SetUnitContent))]
 			[HarmonyPostfix]
-			public static void EntityHandlePostFix( ref EntityHandle entityHandle )
+			public static void EntityHandlePostFix( WorldUnitController __instance )
 			{
-				log.LogInfo($"EntityHandle: {entityHandle}");
+				log.LogInfo($"Entity Handle: {__instance.EntityHandle}");
+
+				log.LogInfo($"GetHPDiff: {GetHPDiffBetweenSimulation(__instance.EntityHandle)}");
 			}
-
-
-			[HarmonyPatch(typeof(ShinyShoe.SharedDataLoader.AssetLibrary), nameof(ShinyShoe.SharedDataLoader.AssetLibrary.Initialize))]
-			[HarmonyPostfix]
-			public static void AssetLibrary()
-			{
-				log.LogInfo("DEBUG Asset Library Loaded");
-			}
-
 
 			public static int GetHPDiffBetweenSimulation(EntityHandle entityHandle)
 			{
@@ -56,6 +50,57 @@ namespace Projected_Damage
 				var totalOld = oldStats.hp + oldStats.energyShield;
 				var totalNew = newStats.hp + newStats.energyShield;
 				return totalOld - totalNew;
+			}
+		}
+
+
+
+		[HarmonyPatch(typeof(ShinyShoe.HpBarUI), nameof(ShinyShoe.HpBarUI.Set))]
+		public static class HpBarUI_Sandbox
+		{
+
+			[HarmonyPrefix]
+			public static void HpBarUI_Set(HpEnergyShield currentHpEnergyShield, HpEnergyShield predictedHpEnergyShield)
+			{
+
+				int delta_hp = currentHpEnergyShield.hp - predictedHpEnergyShield.hp;
+				int delta_shield = currentHpEnergyShield.energyShield - currentHpEnergyShield.energyShield;
+				
+
+				log.LogInfo($"delta_hp: {delta_hp}");
+				log.LogInfo($"delta_shield: {delta_shield}");
+			}
+
+		}
+
+		[HarmonyPatch(typeof(ShinyShoe.AbilityHandScreen), nameof(ShinyShoe.AbilityHandScreen.IsTargeting))]
+		public static class AbilityHand_Sandbox
+		{
+
+			[HarmonyPostfix]
+			public static void IsTargeting(ref bool __result)
+			{
+
+				log.LogInfo($"IsTargeting: {__result}");
+
+				if( __result == true )
+				{
+					log.LogInfo("DEBUG IsTargeting");
+				}
+
+			}
+
+		}
+
+
+		[HarmonyPatch(typeof(ShinyShoe.SharedDataLoader.AssetLibrary), nameof(ShinyShoe.SharedDataLoader.AssetLibrary.Initialize))]
+		public static class AssetLibrary_Example
+		{
+			
+			[HarmonyPostfix]
+			static void AssetLibrary()
+			{
+				log.LogInfo("DEBUG Asset Library Loaded");
 			}
 
 		}
