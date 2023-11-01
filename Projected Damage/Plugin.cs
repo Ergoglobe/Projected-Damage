@@ -6,6 +6,7 @@ using System.Reflection;
 using InkboundModEnabler.Util;
 using ShinyShoe;
 using ShinyShoe.Ares; // Contains EntityHandle
+using System;
 
 namespace Projected_Damage
 {
@@ -26,10 +27,16 @@ namespace Projected_Damage
 			Logger.LogInfo($"Plugin {PLUGIN_GUID} is loaded!");
 		}
 
-		// Code from ADDB 
+		// Code base from ADDB 
 		[HarmonyPatch(typeof(WorldUnitControllerContent))]
 		public static class WorldUnit_Patch
 		{
+			[AttributeUsage(WorldAIUnitController.SetUnitFaceDecals)]
+			public static void EntityHandlePostFix( ref EntityHandle entityHandle )
+			{
+				log.LogInfo($"EntityHandle: {entityHandle}");
+			}
+
 			public static int GetHPDiffBetweenSimulation(EntityHandle entityHandle)
 			{
 				var app_state = ClientApp.Inst.GetStateRo_Debug();
