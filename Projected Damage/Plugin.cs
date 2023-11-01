@@ -7,6 +7,7 @@ using InkboundModEnabler.Util;
 using ShinyShoe;
 using ShinyShoe.Ares; // Contains EntityHandle
 using System;
+using ShinyShoe.SharedDataLoader;
 
 namespace Projected_Damage
 {
@@ -28,14 +29,24 @@ namespace Projected_Damage
 		}
 
 		// Code base from ADDB 
-		[HarmonyPatch(typeof(WorldUnitControllerContent))]
+		[HarmonyPatch(typeof(WorldUnitController))]
 		public static class WorldUnit_Patch
 		{
-			[AttributeUsage(WorldAIUnitController.SetUnitFaceDecals)]
+			[HarmonyPatch(nameof(WorldUnitController.SetUnitContent))]
+			[HarmonyPostfix]
 			public static void EntityHandlePostFix( ref EntityHandle entityHandle )
 			{
 				log.LogInfo($"EntityHandle: {entityHandle}");
 			}
+
+
+			[HarmonyPatch(typeof(ShinyShoe.SharedDataLoader.AssetLibrary), nameof(ShinyShoe.SharedDataLoader.AssetLibrary.Initialize))]
+			[HarmonyPostfix]
+			public static void AssetLibrary()
+			{
+				log.LogInfo("DEBUG Asset Library Loaded");
+			}
+
 
 			public static int GetHPDiffBetweenSimulation(EntityHandle entityHandle)
 			{
