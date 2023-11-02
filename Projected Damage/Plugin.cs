@@ -67,17 +67,17 @@ namespace Projected_Damage
 			public static void Projected_Delta_HP_Colors( int delta_hp )
 			{
 
-				if (delta_hp == 0) // 0 
+				if (delta_hp == 0) // 0 show white
 				{
 					projected_delta_hp.GetComponent<TextMeshProUGUI>().color = new Color(1f, 1f, 1f, 1f);
 				}
 				else if ((delta_hp * -1) < 0) // taking damage
 				{
-					projected_delta_hp.GetComponent<TextMeshProUGUI>().color = new Color(100.0f, 47.8f, 43.1f, 1f);
+					projected_delta_hp.GetComponent<TextMeshProUGUI>().color = new Color(1.000f, .478f, .431f, 1f);
 				}
 				else if ((delta_hp * -1) > 0) // healing
 				{
-					projected_delta_hp.GetComponent<TextMeshProUGUI>().color = new Color(89.0f, 0.0f, 27.1f, 1f);
+					projected_delta_hp.GetComponent<TextMeshProUGUI>().color = new Color(.890f, 0.0f, .271f, 1f);
 				}
 				// TODO if dieing add one more color
 
@@ -85,17 +85,17 @@ namespace Projected_Damage
 
 			public static void Projected_Delta_Shield_Colors( int delta_shield) {
 
-				if (delta_shield == 0) // 0 
+				if (delta_shield == 0) // 0 show white
 				{
 					projected_delta_shield.GetComponent<TextMeshProUGUI>().color = new Color(1f, 1f, 1f, 1f);
 				}
 				else if ((delta_shield * -1) < 0) // taking shield damage
 				{
-					projected_delta_shield.GetComponent<TextMeshProUGUI>().color = new Color(18.4f, 64.3f, 100.0f, 1f);
+					projected_delta_shield.GetComponent<TextMeshProUGUI>().color = new Color(.184f, .643f, 1.000f, 1f);
 				}
 				else if ((delta_shield * -1) > 0) // gaining shield
 				{
-					projected_delta_shield.GetComponent<TextMeshProUGUI>().color = new Color(12.5f, 34.5f, 67.1f, 1f);
+					projected_delta_shield.GetComponent<TextMeshProUGUI>().color = new Color(.125f, .345f, .671f, 1f);
 				}
 				// TODO if dieing add one more color
 
@@ -165,7 +165,7 @@ namespace Projected_Damage
 						projected_delta_shield.name = "Projected Delta Shield";
 						projected_delta_shield.transform.localPosition = new Vector3(0.0f, 75.0f, 0.0f);
 						projected_delta_shield.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Left;
-						projected_delta_hp.transform.SetParent(__instance.transform, false);
+						projected_delta_shield.transform.SetParent(__instance.transform, false);
 						projected_delta_shield.GetComponent<TextMeshProUGUI>().text = $"{delta_shield*-1} Shield";
 
 						Projected_Delta_Shield_Colors(delta_shield);
