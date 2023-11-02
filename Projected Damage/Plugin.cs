@@ -60,7 +60,46 @@ namespace Projected_Damage
 		[HarmonyPatch(typeof(HpBarUI), nameof(HpBarUI.Set))]
 		public static class HpBarUI_Sandbox
 		{
-			public static GameObject myLabelObject;
+			public static GameObject projected_delta_hp;
+			public static GameObject projected_delta_shield;
+
+
+			public static void Projected_Delta_HP_Colors( int delta_hp )
+			{
+
+				if (delta_hp == 0) // 0 
+				{
+					projected_delta_hp.GetComponent<TextMeshProUGUI>().color = new Color(1f, 1f, 1f, 1f);
+				}
+				else if ((delta_hp * -1) < 0) // taking damage
+				{
+					projected_delta_hp.GetComponent<TextMeshProUGUI>().color = new Color(100.0f, 47.8f, 43.1f, 1f);
+				}
+				else if ((delta_hp * -1) > 0) // healing
+				{
+					projected_delta_hp.GetComponent<TextMeshProUGUI>().color = new Color(89.0f, 0.0f, 27.1f, 1f);
+				}
+				// TODO if dieing add one more color
+
+			}
+
+			public static void Projected_Delta_Shield_Colors( int delta_shield) {
+
+				if (delta_shield == 0) // 0 
+				{
+					projected_delta_shield.GetComponent<TextMeshProUGUI>().color = new Color(1f, 1f, 1f, 1f);
+				}
+				else if ((delta_shield * -1) < 0) // taking shield damage
+				{
+					projected_delta_shield.GetComponent<TextMeshProUGUI>().color = new Color(18.4f, 64.3f, 100.0f, 1f);
+				}
+				else if ((delta_shield * -1) > 0) // gaining shield
+				{
+					projected_delta_shield.GetComponent<TextMeshProUGUI>().color = new Color(12.5f, 34.5f, 67.1f, 1f);
+				}
+				// TODO if dieing add one more color
+
+			}
 
 			[HarmonyPrefix]
 			public static void HpBarUI_before_Set(HpEnergyShield currentHpEnergyShield, HpEnergyShield predictedHpEnergyShield, HpBarUI __instance)
@@ -70,31 +109,72 @@ namespace Projected_Damage
 				int delta_shield = currentHpEnergyShield.energyShield - currentHpEnergyShield.energyShield;
 				
 
-				log.LogInfo($"delta_hp: {delta_hp}");
-				log.LogInfo($"delta_shield: {delta_shield}");
+				// log.LogInfo($"delta_hp: {delta_hp}");
+				// log.LogInfo($"delta_shield: {delta_shield}");
 
-				// check if Projected Damage Label exists
-				Transform HpBarUIchildren = __instance.GetComponentInChildren<Transform>();
+				// Check hierarchy and dont display on party display
+				// WorldUI/PartyScreen/CharacterPartyDisplay 1/Player Info/Banner/In Run Stats/HP MP Container/
 
-				bool labelFound = false;
+				// Check hierarchy and dont display on bottom bar OR modify label to place it elsewhere
+				// WorldUI/PlayerHpManaDisplayScreen/HP Area/
 
-				foreach ( Transform child in HpBarUIchildren )
+				// if hierarchy matches the following, display it
+				// WorldUI/OverheadScreen/OverheadUIs/OverheadUI(Clone)/OverheadHpDisplay/Container Medium/
+
+				if( __instance.transform.parent.name == "Container Medium")
 				{
-					if ( child.name == "Projected Damage Label")
+
+
+					// check if Projected Damage Label exists
+					Transform HpBarUIchildren = __instance.GetComponentInChildren<Transform>();
+
+					bool labelFound = false;
+
+					foreach (Transform child in HpBarUIchildren)
 					{
-						labelFound = true;
-						child.GetComponent<TextMeshProUGUI>().text = $"hp: {delta_hp} shield: {delta_shield}";
-						break;
+						if (child.name == "Projected Delta HP")
+						{
+							labelFound = true;
+							child.GetComponent<TextMeshProUGUI>().text = $"{delta_hp * -1} HP";
+							Projected_Delta_HP_Colors(delta_hp);
+						}
+						if (child.name == "Projected Delta Shield")
+						{
+							labelFound = true;
+							child.GetComponent<TextMeshProUGUI>().text = $"{delta_shield * -1} Shield";
+							Projected_Delta_Shield_Colors(delta_shield);
+						}
+					}
+
+					// Instantiate the labels if not found
+					if (!labelFound)
+					{
+						// TODO: Instantiate label from another gameobject to copy the style
+						// myLabelObject = new("Projected Damage Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+
+						projected_delta_hp = GameObject.Instantiate(__instance.transform.parent.Find("Enemy Name").gameObject);
+						projected_delta_hp.name = "Projected Delta HP";
+						projected_delta_hp.transform.localPosition = new Vector3( 0.0f, 65.0f, 0.0f);
+						projected_delta_hp.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Left;
+						projected_delta_hp.transform.SetParent(__instance.transform, false);
+						projected_delta_hp.GetComponent<TextMeshProUGUI>().text = $"{delta_hp*-1} HP";
+
+						Projected_Delta_HP_Colors(delta_hp);
+
+						projected_delta_shield = GameObject.Instantiate(__instance.transform.parent.Find("Enemy Name").gameObject);
+						projected_delta_shield.name = "Projected Delta Shield";
+						projected_delta_shield.transform.localPosition = new Vector3(0.0f, 75.0f, 0.0f);
+						projected_delta_shield.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Left;
+						projected_delta_hp.transform.SetParent(__instance.transform, false);
+						projected_delta_shield.GetComponent<TextMeshProUGUI>().text = $"{delta_shield*-1} Shield";
+
+						Projected_Delta_Shield_Colors(delta_shield);
+
+
+
 					}
 				}
 
-				if ( !labelFound) 
-				{
-					myLabelObject = new("Projected Damage Label", typeof(RectTransform), typeof(TextMeshProUGUI));
-					myLabelObject.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Left;
-					myLabelObject.transform.SetParent(__instance.transform, false);
-					myLabelObject.GetComponent<TextMeshProUGUI>().text = $"hp: {delta_hp} shield: {delta_shield}";
-				}
 
 			}
 
