@@ -8,6 +8,8 @@ using ShinyShoe;
 using ShinyShoe.Ares; // Contains EntityHandle
 using System;
 using ShinyShoe.SharedDataLoader;
+using UnityEngine;
+using TMPro;
 
 namespace Projected_Damage
 {
@@ -55,12 +57,13 @@ namespace Projected_Damage
 
 
 
-		[HarmonyPatch(typeof(ShinyShoe.HpBarUI), nameof(ShinyShoe.HpBarUI.Set))]
+		[HarmonyPatch(typeof(HpBarUI), nameof(HpBarUI.Set))]
 		public static class HpBarUI_Sandbox
 		{
+			public static GameObject myLabelObject;
 
 			[HarmonyPrefix]
-			public static void HpBarUI_Set(HpEnergyShield currentHpEnergyShield, HpEnergyShield predictedHpEnergyShield)
+			public static void HpBarUI_before_Set(HpEnergyShield currentHpEnergyShield, HpEnergyShield predictedHpEnergyShield, HpBarUI __instance)
 			{
 
 				int delta_hp = currentHpEnergyShield.hp - predictedHpEnergyShield.hp;
@@ -69,7 +72,32 @@ namespace Projected_Damage
 
 				log.LogInfo($"delta_hp: {delta_hp}");
 				log.LogInfo($"delta_shield: {delta_shield}");
+
+				// check if Projected Damage Label exists
+				Transform HpBarUIchildren = __instance.GetComponentInChildren<Transform>();
+
+				bool labelFound = false;
+
+				foreach ( Transform child in HpBarUIchildren )
+				{
+					if ( child.name == "Projected Damage Label")
+					{
+						labelFound = true;
+						child.GetComponent<TextMeshProUGUI>().text = $"hp: {delta_hp} shield: {delta_shield}";
+						break;
+					}
+				}
+
+				if ( !labelFound) 
+				{
+					myLabelObject = new("Projected Damage Label", typeof(RectTransform), typeof(TextMeshProUGUI));
+					myLabelObject.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Left;
+					myLabelObject.transform.SetParent(__instance.transform, false);
+					myLabelObject.GetComponent<TextMeshProUGUI>().text = $"hp: {delta_hp} shield: {delta_shield}";
+				}
+
 			}
+
 
 		}
 
