@@ -122,11 +122,9 @@ namespace Projected_Damage
 
 			}
 
-			private static string Format_Damage_Number(long num)
+			private static string Format_Damage_Number(int num)
 			{
-				// Ensure number has max 3 significant digits (no rounding up can happen)
-				long i = (long)Math.Pow(10, (int)Math.Max(0, Math.Log10(num) - 2));
-				num = num / i * i;
+
 
 				if (num >= 1000000000)
 					return (num / 1000000000D).ToString("0.##") + "B"; // Will this ever be necessary?
@@ -135,7 +133,7 @@ namespace Projected_Damage
 				if (num >= 1000)
 					return (num / 1000D).ToString("0.##") + "K";
 
-				if ( num < 0 )
+				if (num < 0)
 				{
 					// if the unit will be healing add a + sign to the number
 					return "+" + (num*-1).ToString("#,0");
@@ -144,8 +142,7 @@ namespace Projected_Damage
 				{
 					return num.ToString("#,0");
 				}
-
-
+			
 			}
 
 
@@ -224,11 +221,13 @@ namespace Projected_Damage
 
 						projected_delta_total = GameObject.Instantiate(__instance.transform.parent.Find("HP Text").gameObject);
 						projected_delta_total.name = "Projected Delta Total";
-						
+
 						// right of health bar ( 95 0 0 )
+						// projected_delta_total.transform.localPosition = new Vector3(95.0f, 0.0f, 0.0f);
+
 						// between incoming damage and health ( -15 24 0 )
-						projected_delta_total.transform.localPosition = new Vector3(95.0f, 0.0f, 0.0f);
-						
+						projected_delta_total.transform.localPosition = new Vector3(-15.0f, 24.0f, 0.0f);
+
 						projected_delta_total.GetComponent<TextMeshProUGUI>().alignment = TextAlignmentOptions.Center;
 						projected_delta_total.transform.SetParent(__instance.transform, false);
 						projected_delta_total.GetComponent<TextMeshProUGUI>().text = Format_Damage_Number( delta_total );
